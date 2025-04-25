@@ -8,9 +8,9 @@ abstract class DataState<T> {
 }
 
 class DataSuccess<T> extends DataState<T> {
-  const DataSuccess({super.data});
+  const DataSuccess(T data) : super(data: data);
 }
 
-class DataFailure<T> extends DataState<T> {
-  const DataFailure({super.error});
+class DataFailed<T> extends DataState<T> {
+  const DataFailed(DioException error) : super(error: error);
 }

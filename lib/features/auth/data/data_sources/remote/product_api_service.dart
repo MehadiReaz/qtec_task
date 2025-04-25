@@ -8,9 +8,8 @@ abstract class ProductApiService {
   factory ProductApiService(Dio dio, {String baseUrl}) = _ProductApiService;
   @GET(products)
   Future<HttpResponse> getProducts({
-    @Query('limit') int limit = 10,
-    @Query('skip') int skip = 0,
-    @Query('select')
-    String select = 'id,title,thumbnail,price,rating,discountPercentage',
+    @Query('limit') int? limit,
+    @Query('skip') int? skip,
+    @Query('select') String? select,
   });
 }

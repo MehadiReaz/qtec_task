@@ -25,9 +25,9 @@ class _ProductApiService implements ProductApiService {
 
   @override
   Future<HttpResponse<dynamic>> getProducts({
-    int limit = 10,
-    int skip = 0,
-    String select = 'id,title,thumbnail,price,rating,discountPercentage',
+    int? limit,
+    int? skip,
+    String? select,
   }) async {
     final _extra = <String, dynamic>{};
     final queryParameters = <String, dynamic>{
@@ -35,6 +35,7 @@ class _ProductApiService implements ProductApiService {
       r'skip': skip,
       r'select': select,
     };
+    queryParameters.removeWhere((k, v) => v == null);
     final _headers = <String, dynamic>{};
     const Map<String, dynamic>? _data = null;
     final _options = _setStreamType<HttpResponse<dynamic>>(Options(
