@@ -19,11 +19,11 @@ Future<void> setup() async {
   getIt.registerSingleton<ProductRepository>(
       ProductRepositoryImpl(productApiService: getIt<ProductApiService>()));
 
-  // Register GetProductsUseCase with its implementation
-  getIt.registerSingleton<GetProductsUseCase>(
-      GetProductsUseCase(getIt<ProductRepository>()));
+  // Register GetProductsUsecase with its implementation
+  getIt.registerSingleton<GetProductsUsecase>(
+      GetProductsUsecase(getIt<ProductRepository>()));
 
   // Register ProductBloc
   getIt.registerFactory<ProductBloc>(
-      () => ProductBloc(getIt<GetProductsUseCase>()));
+      () => ProductBloc(getIt<GetProductsUsecase>()));
 }

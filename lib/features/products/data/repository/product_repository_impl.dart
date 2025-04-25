@@ -10,12 +10,11 @@ class ProductRepositoryImpl implements ProductRepository {
   ProductRepositoryImpl({required this.productApiService});
 
   @override
-  Future<DataState<ProductListModel>> getProducts() async {
+  Future<DataState<ProductListModel>> getProducts(int? limit, int? skip) async {
     try {
       final httpResponse = await productApiService.getProducts(
-        limit: 10,
-        skip: 0,
-        // select: 'id,title,thumbnail,price,rating,discountPercentage',
+        limit: limit,
+        skip: skip,
       );
       if (httpResponse.response.statusCode == HttpStatus.ok) {
         final productListModel = ProductListModel.fromJson(httpResponse.data);

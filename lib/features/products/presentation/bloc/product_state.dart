@@ -1,15 +1,12 @@
 import 'package:equatable/equatable.dart';
-import 'package:qtec_task/features/products/domain/entities/product.dart';
 import 'package:dio/dio.dart';
+import '../../domain/entities/product.dart';
 
 abstract class ProductState extends Equatable {
-  final ProductListEntity? products;
-  final DioException? error;
-
-  const ProductState({this.products, this.error});
+  const ProductState();
 
   @override
-  List<Object?> get props => [products, error];
+  List<Object?> get props => [];
 }
 
 class ProductsLoading extends ProductState {
@@ -17,9 +14,23 @@ class ProductsLoading extends ProductState {
 }
 
 class ProductsLoaded extends ProductState {
-  const ProductsLoaded(ProductListEntity? products) : super(products: products);
+  final List<ProductEntity> products;
+  final bool isLoadingMore;
+
+  const ProductsLoaded(
+    this.products, {
+    this.isLoadingMore = false,
+  });
+
+  @override
+  List<Object?> get props => [products, isLoadingMore];
 }
 
 class ProductLoadFailed extends ProductState {
-  const ProductLoadFailed(DioException error) : super(error: error);
+  final DioException error;
+
+  const ProductLoadFailed(this.error);
+
+  @override
+  List<Object?> get props => [error];
 }

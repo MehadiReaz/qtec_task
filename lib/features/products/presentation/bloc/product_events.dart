@@ -1,7 +1,5 @@
-abstract class ProductEvent {
-  const ProductEvent();
-}
+abstract class ProductEvent {}
 
-class GetProductsEvent extends ProductEvent {
-  const GetProductsEvent();
-}
+class GetProductsEvent extends ProductEvent {}
+
+class LoadMoreProductsEvent extends ProductEvent {}

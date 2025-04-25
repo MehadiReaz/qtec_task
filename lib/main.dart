@@ -17,7 +17,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider<ProductBloc>(
-        create: (context) => getIt()..add(const GetProductsEvent()),
+        create: (context) => getIt()..add(GetProductsEvent()),
         child: MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Qtec Task',
