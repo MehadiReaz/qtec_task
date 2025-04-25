@@ -5,7 +5,6 @@ import '../../domain/repository/product_repository.dart';
 class ProductRepositoryImpl implements ProductRepository {
   @override
   Future<DataState<List<ProductModel>>> getProducts() {
-    // TODO: implement getProducts
     throw UnimplementedError();
   }
 }
