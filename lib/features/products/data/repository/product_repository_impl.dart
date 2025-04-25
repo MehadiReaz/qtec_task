@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:qtec_task/core/resources/data_state.dart';
-import 'package:qtec_task/features/auth/data/models/product.dart';
+import 'package:qtec_task/features/products/data/models/product.dart';
 import '../../domain/repository/product_repository.dart';
 import '../data_sources/remote/product_api_service.dart';
 
@@ -10,15 +10,16 @@ class ProductRepositoryImpl implements ProductRepository {
   ProductRepositoryImpl({required this.productApiService});
 
   @override
-  Future<DataState<List<ProductListModel>>> getProducts() async {
+  Future<DataState<ProductListModel>> getProducts() async {
     try {
       final httpResponse = await productApiService.getProducts(
         limit: 10,
         skip: 0,
-        select: 'id,title,thumbnail,price,rating,discountPercentage',
+        // select: 'id,title,thumbnail,price,rating,discountPercentage',
       );
       if (httpResponse.response.statusCode == HttpStatus.ok) {
-        return DataSuccess(httpResponse.data);
+        final productListModel = ProductListModel.fromJson(httpResponse.data);
+        return DataSuccess(productListModel);
       } else {
         return DataFailed(DioException(
           error: 'Error: ${httpResponse.response.statusCode}',

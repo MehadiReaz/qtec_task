@@ -3,13 +3,14 @@ import '../../../../core/usecase/usecase.dart';
 import '../entities/product.dart';
 import '../repository/product_repository.dart';
 
-class GetProducts implements UseCase<DataState<List<ProductListEntity>>, void> {
+class GetProductsUseCase
+    implements UseCase<DataState<ProductListEntity>, void> {
   final ProductRepository productRepository;
 
-  GetProducts(this.productRepository);
+  GetProductsUseCase(this.productRepository);
 
   @override
-  Future<DataState<List<ProductListEntity>>> call(void params) {
+  Future<DataState<ProductListEntity>> call({void params}) {
     return productRepository.getProducts();
   }
 }
