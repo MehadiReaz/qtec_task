@@ -90,7 +90,7 @@ class _ProductApiService implements ProductApiService {
     )
         .compose(
           _dio.options,
-          'products/search/',
+          'products/search',
           queryParameters: queryParameters,
           data: _data,
         )

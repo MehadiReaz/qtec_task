@@ -18,7 +18,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider<ProductBloc>(
         create: (context) => getIt()..add(GetProductsEvent()),
-        child: MaterialApp(
+        child: const MaterialApp(
             debugShowCheckedModeBanner: false,
             title: 'Qtec Task',
             home: ProductList()));

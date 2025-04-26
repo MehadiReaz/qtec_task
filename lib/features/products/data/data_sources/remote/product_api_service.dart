@@ -12,16 +12,16 @@ abstract class ProductApiService {
     @Query('limit') int? limit,
     @Query('skip') int? skip,
     @Query('select') String? select,
-    @Query('sortBy') String? sort, // Add this parameter
-    @Query('order') String? order, // Add this parameter
+    @Query('sortBy') String? sort,
+    @Query('order') String? order,
   });
 
   @GET(search)
   Future<HttpResponse> searchProducts({
     @Query('q') required String query,
-    @Query('limit') int? limit, // Optional: add pagination to search as well
-    @Query('skip') int? skip, // Optional: add pagination to search as well
-    @Query('sortBy') String? sort, // Optional: add sorting to search
-    @Query('order') String? order, // Optional: add ordering to search
+    @Query('limit') int? limit,
+    @Query('skip') int? skip,
+    @Query('sortBy') String? sort,
+    @Query('order') String? order,
   });
 }

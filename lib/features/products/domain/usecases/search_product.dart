@@ -13,7 +13,7 @@ class SearchProductsUsecase
   @override
   Future<DataState<ProductListEntity>> call({ProductSearchParams? params}) {
     // Provide defaults for null parameters
-    final effectiveParams = params ?? ProductSearchParams();
+    final effectiveParams = params ?? const ProductSearchParams();
 
     return productRepository.searchProducts(
       effectiveParams.query, // Default query to empty string

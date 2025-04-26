@@ -57,9 +57,9 @@ class ProductRepositoryImpl implements ProductRepository {
         sort: sort,
         order: order,
       );
-      // Log the response data
       _logger.d('searchProducts Response: ${httpResponse.data}');
-
+      final requestUri = httpResponse.response.requestOptions.uri;
+      _logger.d('API URL (searchProducts): $requestUri');
       if (httpResponse.response.statusCode == HttpStatus.ok) {
         final productListModel = ProductListModel.fromJson(httpResponse.data);
         return DataSuccess(productListModel);
