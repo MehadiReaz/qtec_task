@@ -7,4 +7,8 @@ abstract class ProductRepository {
     int? limit,
     int? skip,
   );
+
+  Future<DataState<ProductListEntity>> searchProducts(
+    String? query,
+  );
 }

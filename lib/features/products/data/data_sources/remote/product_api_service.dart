@@ -12,4 +12,9 @@ abstract class ProductApiService {
     @Query('skip') int? skip,
     @Query('select') String? select,
   });
+
+  @GET(search)
+  Future<HttpResponse> searchProducts({
+    @Query('q') required String query,
+  });
 }

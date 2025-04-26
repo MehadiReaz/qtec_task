@@ -32,4 +32,27 @@ class ProductRepositoryImpl implements ProductRepository {
       return DataFailed(e);
     }
   }
+
+  @override
+  Future<DataState<ProductListModel>> searchProducts(String? query) async {
+    try {
+      final httpResponse = await productApiService.searchProducts(
+        query: query ?? '',
+      );
+      if (httpResponse.response.statusCode == HttpStatus.ok) {
+        final productListModel = ProductListModel.fromJson(httpResponse.data);
+        return DataSuccess(productListModel);
+      } else {
+        return DataFailed(DioException(
+          error: 'Error: ${httpResponse.response.statusCode}',
+          response: httpResponse.response,
+          type: DioExceptionType.badResponse,
+          message: 'Error: ${httpResponse.response.statusCode}',
+          requestOptions: httpResponse.response.requestOptions,
+        ));
+      }
+    } on DioException catch (e) {
+      return DataFailed(e);
+    }
+  }
 }
