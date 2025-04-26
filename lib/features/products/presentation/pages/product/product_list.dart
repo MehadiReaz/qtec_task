@@ -16,6 +16,8 @@ class _ProductListState extends State<ProductList> {
   final ScrollController _scrollController = ScrollController();
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
+  String _currentSortBy = 'price'; // Default sort
+  String _currentSortOrder = 'asc'; // Default order
 
   @override
   void initState() {
@@ -29,10 +31,7 @@ class _ProductListState extends State<ProductList> {
   void _scrollListener() {
     if (_scrollController.position.pixels ==
         _scrollController.position.maxScrollExtent) {
-      // Load more only if not searching
-      if (_searchQuery.isEmpty) {
-        context.read<ProductBloc>().add(LoadMoreProductsEvent());
-      }
+      context.read<ProductBloc>().add(LoadMoreProductsEvent());
     }
   }
 
@@ -44,6 +43,17 @@ class _ProductListState extends State<ProductList> {
       // If search is cleared, reload normal products
       context.read<ProductBloc>().add(GetProductsEvent());
     }
+  }
+
+  void _applySorting(String sortBy, String order) {
+    _currentSortBy = sortBy;
+    _currentSortOrder = order;
+    context.read<ProductBloc>().add(
+          SortProductsEvent(
+            sortBy: sortBy,
+            order: order,
+          ),
+        );
   }
 
   @override
@@ -66,6 +76,27 @@ class _ProductListState extends State<ProductList> {
           textInputAction: TextInputAction.search,
           onSubmitted: _onSearchSubmitted,
         ),
+        actions: [
+          PopupMenuButton<Map<String, String>>(
+            icon: const Icon(Icons.sort),
+            tooltip: 'Sort by',
+            onSelected: (Map<String, String> sortOption) {
+              _applySorting(sortOption['sortBy']!, sortOption['order']!);
+            },
+            itemBuilder: (BuildContext context) {
+              return [
+                _buildSortMenuItem('Price (Low to High)', 'price', 'asc'),
+                _buildSortMenuItem('Price (High to Low)', 'price', 'desc'),
+                _buildSortMenuItem('Rating (Low to High)', 'rating', 'asc'),
+                _buildSortMenuItem('Rating (High to Low)', 'rating', 'desc'),
+                // _buildSortMenuItem(
+                //     'Discount (Low to High)', 'discountPercentage', 'asc'),
+                // _buildSortMenuItem(
+                //     'Discount (High to Low)', 'discountPercentage', 'desc'),
+              ];
+            },
+          ),
+        ],
       ),
       body: BlocConsumer<ProductBloc, ProductState>(
         listener: (context, state) {
@@ -84,6 +115,22 @@ class _ProductListState extends State<ProductList> {
             return const Center(child: Text('Failed to load products'));
           }
         },
+      ),
+    );
+  }
+
+  PopupMenuItem<Map<String, String>> _buildSortMenuItem(
+      String title, String sortBy, String order) {
+    final isSelected = _currentSortBy == sortBy && _currentSortOrder == order;
+
+    return PopupMenuItem<Map<String, String>>(
+      value: {'sortBy': sortBy, 'order': order},
+      child: Row(
+        children: [
+          Text(title),
+          if (isSelected) const SizedBox(width: 8),
+          if (isSelected) const Icon(Icons.check, size: 18),
+        ],
       ),
     );
   }

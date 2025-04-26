@@ -9,3 +9,13 @@ class SearchProductsEvent extends ProductEvent {
 
   SearchProductsEvent(this.query);
 }
+
+class SortProductsEvent extends ProductEvent {
+  final String sortBy;
+  final String order;
+
+  SortProductsEvent({
+    required this.sortBy,
+    this.order = 'asc', // Default to ascending order
+  });
+}
