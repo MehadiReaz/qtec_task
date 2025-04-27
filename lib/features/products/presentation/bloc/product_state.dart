@@ -35,17 +35,27 @@ class ProductsLoaded extends ProductState {
   final bool isLoadingMore;
   final bool hasReachedMax;
   final Set<String> wishlistedProducts;
+  final int totalCount;
+  final bool isSearchActive;
 
   const ProductsLoaded(
     this.products, {
     this.isLoadingMore = false,
     this.hasReachedMax = false,
     this.wishlistedProducts = const {},
+    this.totalCount = 0,
+    this.isSearchActive = false,
   });
 
   @override
-  List<Object?> get props =>
-      [products, isLoadingMore, hasReachedMax, wishlistedProducts];
+  List<Object?> get props => [
+        products,
+        isLoadingMore,
+        hasReachedMax,
+        wishlistedProducts,
+        totalCount,
+        isSearchActive,
+      ];
 }
 
 class ProductsEmpty extends ProductState {

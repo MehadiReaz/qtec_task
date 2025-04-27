@@ -18,18 +18,14 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
   bool hasReachedMax = false;
   List<ProductEntity> products = [];
 
-  // Add a set to track wishlist items
-  final Set<String> wishlistedProducts = {};
+  Set<String> wishlistedProducts = {};
 
-  // Flag to track if we're currently loading more products
   bool isLoadingMore = false;
 
-  // Add these properties to track current sorting
   String? currentSortBy;
   String? currentSortOrder;
   String? currentSearchQuery;
 
-  // Timer for debouncing search
   Timer? _searchDebounce;
 
   ProductBloc(
@@ -43,7 +39,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     on<DebounceSearchEvent>(_onDebounceSearchEvent);
     on<SortProductsEvent>(_onSortProductsEvent);
     on<RefreshProductsEvent>(_onRefreshProductsEvent);
-    // Register wishlist event handler
     on<WishlistToggleEvent>(_onWishlistToggleEvent);
   }
 
@@ -58,7 +53,7 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     hasReachedMax = false;
     isLoadingMore = false;
     products.clear();
-    currentSearchQuery = null; // Reset search when getting all products
+    currentSearchQuery = null; // Clear search query
     emit(const ProductsLoading());
 
     final params = ProductsParams(
@@ -74,7 +69,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
   void _onLoadMoreProductsEvent(
       LoadMoreProductsEvent event, Emitter<ProductState> emit) async {
-    // Prevent duplicate calls and unnecessary calls
     if (hasReachedMax || isLoadingMore || state is! ProductsLoaded) return;
 
     isLoadingMore = true;
@@ -83,7 +77,6 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
     DataState<ProductListEntity> dataState;
 
-    // Use separate code paths rather than trying to use a conditional expression
     if (currentSearchQuery != null) {
       final params = ProductSearchParams(
         query: currentSearchQuery ?? '',
@@ -144,6 +137,9 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
       skip += limit;
       hasReachedMax = dataState.data!.products.length < limit;
 
+      // Get the total count from the API response
+      final int totalItems = dataState.data!.total;
+
       if (products.isEmpty) {
         emit(ProductsEmpty(wishlistedProducts: wishlistedProducts));
       } else {
@@ -151,6 +147,8 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
           products,
           wishlistedProducts: wishlistedProducts,
           hasReachedMax: hasReachedMax,
+          totalCount: totalItems, // Pass the total count
+          isSearchActive: true, // This is a search result
         ));
       }
     } else if (dataState is DataFailed) {
@@ -160,18 +158,10 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
   void _onRefreshProductsEvent(
       RefreshProductsEvent event, Emitter<ProductState> emit) async {
-    List<ProductEntity> currentProducts = [];
-
-    // Store current products if available
-    if (event.currentProducts.isNotEmpty) {
-      currentProducts = event.currentProducts;
-    } else if (products.isNotEmpty) {
-      currentProducts = products;
-    }
-
-    emit(ProductsRefreshing(
-      currentProducts: currentProducts,
-      wishlistedProducts: wishlistedProducts,
+    // Emit initial ProductsRefreshing state WITH shimmer (no products shown yet)
+    emit(const ProductsRefreshing(
+      currentProducts: [],
+      wishlistedProducts: {},
     ));
 
     skip = 0;
@@ -203,22 +193,23 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     _handleDataState(dataState, emit);
   }
 
-  // New method to handle sorting
   void _onSortProductsEvent(
       SortProductsEvent event, Emitter<ProductState> emit) async {
-    // Update current sort settings
     currentSortBy = event.sortBy;
     currentSortOrder = event.order;
 
-    // Reset pagination and reload products
     skip = 0;
     products.clear();
     hasReachedMax = false;
     isLoadingMore = false;
+
+    // Get search active status before emitting loading state
+    bool isSearching =
+        currentSearchQuery != null && currentSearchQuery!.isNotEmpty;
+
     emit(const ProductsLoading());
 
-    // Handle either search results or all products
-    if (currentSearchQuery != null && currentSearchQuery!.isNotEmpty) {
+    if (isSearching) {
       final params = ProductSearchParams(
         query: currentSearchQuery ?? '',
         limit: limit,
@@ -240,32 +231,36 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
     }
   }
 
-  // New method to handle wishlist toggling
   void _onWishlistToggleEvent(
       WishlistToggleEvent event, Emitter<ProductState> emit) {
-    if (wishlistedProducts.contains(event.productId)) {
-      wishlistedProducts.remove(event.productId);
+    final newWishlistedProducts = Set<String>.from(wishlistedProducts);
+
+    if (newWishlistedProducts.contains(event.productId)) {
+      newWishlistedProducts.remove(event.productId);
     } else {
-      wishlistedProducts.add(event.productId);
+      newWishlistedProducts.add(event.productId);
     }
 
-    // Update current state with new wishlist information
+    wishlistedProducts = newWishlistedProducts;
+
     if (state is ProductsLoaded) {
       final currentState = state as ProductsLoaded;
       emit(ProductsLoaded(
-        products,
+        currentState.products,
         isLoadingMore: currentState.isLoadingMore,
-        hasReachedMax: hasReachedMax,
-        wishlistedProducts: wishlistedProducts,
+        hasReachedMax: currentState.hasReachedMax,
+        wishlistedProducts: newWishlistedProducts,
+        totalCount: currentState.totalCount, // Preserve total count
+        isSearchActive: currentState.isSearchActive, // Preserve search status
       ));
     } else if (state is ProductsRefreshing) {
       final currentState = state as ProductsRefreshing;
       emit(ProductsRefreshing(
         currentProducts: currentState.currentProducts,
-        wishlistedProducts: wishlistedProducts,
+        wishlistedProducts: newWishlistedProducts,
       ));
     } else if (state is ProductsEmpty) {
-      emit(ProductsEmpty(wishlistedProducts: wishlistedProducts));
+      emit(ProductsEmpty(wishlistedProducts: newWishlistedProducts));
     }
   }
 
@@ -277,6 +272,9 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
 
       hasReachedMax = dataState.data!.products.length < limit;
 
+      // Store the total from the API response
+      final int totalItems = dataState.data!.total;
+
       if (products.isEmpty) {
         emit(ProductsEmpty(wishlistedProducts: wishlistedProducts));
       } else {
@@ -285,6 +283,9 @@ class ProductBloc extends Bloc<ProductEvent, ProductState> {
           isLoadingMore: false,
           hasReachedMax: hasReachedMax,
           wishlistedProducts: wishlistedProducts,
+          totalCount: totalItems, // Pass the total count
+          isSearchActive: currentSearchQuery != null &&
+              currentSearchQuery!.isNotEmpty, // Set search status
         ));
       }
     } else if (dataState is DataFailed) {
